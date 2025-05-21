@@ -3,7 +3,7 @@
 🇬🇧 **English Version**
 
 #### Take a look on the chatroom here:  
-[https://verbose-meme-7vwwwpw47rvjfpq79-5005.app.github.dev/)
+[https://stvinage.github.io/kic_chatroom.github.io/)
 
 
 #### To create your own chatroom:

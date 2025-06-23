@@ -4,64 +4,115 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weatherbot - Dein Wetterexperte</title>
-  
+
   <link rel="stylesheet" href="https://cdn.statically.io/gh/weberi/chatroom/master/dist/Chatroom.css" />
   <link rel="stylesheet" href="https://cdn.statically.io/gh/weberi/chatroom/master/index.css" />
   <link rel="stylesheet" href="https://cdn.statically.io/gh/weberi/chatroom/master/themes/theme2.css" />
 
   <style>
+    /* Farben und Variablen für Konsistenz */
+    :root {
+      --light-blue-sky-start: #87CEEB; /* Himmlisches Hellblau */
+      --light-blue-sky-middle: #ADD8E6; /* Mittleres Hellblau */
+      --light-blue-sky-end: #F0F8FF;   /* Sehr helles Blau / fast Weiß */
+      --chat-header-blue: #64B5F6;     /* Etwas dunkleres Blau für Header */
+      --chat-input-bg: #E3F2FD;        /* Sehr helles Blau für Input-Bereich */
+      --chat-button-blue: #42A5F5;     /* Lebhaftes Blau für Button */
+      --chat-button-hover: #2196F3;    /* Dunkleres Blau beim Hover */
+      --chat-border-blue: #BBDEFB;     /* Dezenter Rand für Input */
+      --message-bg-user: #BBDEFB;      /* Hintergrundfarbe für Benutzernachrichten */
+      --message-bg-bot: #FFFFFF;       /* Hintergrundfarbe für Bot-Nachrichten */
+      --message-text-color: #333333;   /* Textfarbe für Nachrichten */
+    }
+
     /* Allgemeine Body-Stile für den Hintergrund */
     body {
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to bottom, #87CEEB, #ADD8E6, #F0F8FF); /* Hellblauer Verlauf Himmel */
+      background: linear-gradient(to bottom, var(--light-blue-sky-start), var(--light-blue-sky-middle), var(--light-blue-sky-end));
       background-size: cover;
-      background-attachment: fixed; /* Hintergrund scrollt nicht mit */
+      background-attachment: fixed;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh; /* Mindesthöhe des Bodys auf den Viewport setzen */
-      overflow: hidden; /* Verhindert Scrollbalken, wenn Wolken/Sonne überlappen */
+      min-height: 100vh;
+      overflow: hidden; /* Wichtig, um Scrollbalken für Wolken/Sonne zu vermeiden */
+      position: relative; /* Wichtig für die Positionierung von Wolken/Sonne im Body-Hintergrund */
     }
 
     /* Chat-Container zentrieren und stil anpassen */
     .chat-container {
       width: 90%;
-      max-width: 450px; /* Begrenzte Breite für modernes Aussehen */
-      height: 80vh; /* Relative Höhe für Responsivität */
-      max-height: 700px; /* Maximale Höhe */
+      max-width: 450px;
+      height: 80vh;
+      max-height: 700px;
       background-color: rgba(255, 255, 255, 0.95); /* Leicht transparenter weißer Hintergrund */
-      border-radius: 20px; /* Abgerundete Ecken */
-      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Moderner Schatten */
-      overflow: hidden; /* Wichtig, um Inhalt innerhalb der abgerundeten Ecken zu halten */
+      border-radius: 20px;
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden; /* Wichtig für abgerundete Ecken des Chatfensters */
       display: flex;
-      flex-direction: column; /* Stellt sicher, dass der Chatroom-Inhalt vertikal gestapelt wird */
-      position: relative; /* Für Wolken/Sonne Positionierung */
+      flex-direction: column;
+      z-index: 10; /* Stellen Sie sicher, dass der Chat-Container über den Hintergrundelementen liegt */
+      position: relative; /* Für lokale Elemente, falls benötigt */
     }
 
-    /* Anpassungen für den Chatroom selbst (kann je nach Chatroom-JS-Struktur variieren) */
-    /* Dies sind Schätzungen, die Sie an die tatsächlichen Klassen des Chatroom.js anpassen müssen */
-    .chatroom-header {
-      background-color: #64B5F6; /* Etwas dunkleres Blau für den Header */
+    /* === CHATROOM SPEZIFISCHE ANPASSUNGEN === */
+    /* Da ich die genauen Klassennamen nicht kenne, sind dies Schätzungen.
+       Bitte verwenden Sie die Browser-Entwicklertools (F12), um die exakten Klassennamen zu finden und anzupassen. */
+
+    /* Beispiel für den Chat-Header */
+    /* Oft hat der Chatroom eine Klasse wie '.chatroom-header', '.chat-title-bar' oder ist direkt im Container */
+    .chat-container .title { /* Angepasst an Chatroom.js Standard-Header-Klasse */
+      background-color: var(--chat-header-blue);
       color: white;
       padding: 15px;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
       text-align: center;
       font-size: 1.2em;
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border-bottom: none; /* Entfernen Sie Standard-Border */
     }
 
-    .chatroom-message-list {
-      flex-grow: 1; /* Lässt die Nachrichtenliste den verfügbaren Platz einnehmen */
+    /* Nachrichtenbereich */
+    .chat-container .chat-messages { /* Angepasst an Chatroom.js Standard-Nachrichtenliste */
+      flex-grow: 1;
       padding: 15px;
-      overflow-y: auto; /* Aktiviert das Scrollen für Nachrichten */
+      overflow-y: auto;
+      background-color: rgba(245, 245, 245, 0.7); /* Sehr hellgrau, leicht transparent */
+      display: flex; /* Für Flexbox-Layout der Nachrichten */
+      flex-direction: column; /* Nachrichten stapeln */
     }
 
-    .chatroom-input-area {
-      background-color: #E3F2FD; /* Sehr helles Blau für den Eingabebereich */
+    /* Individuelle Nachrichten - Bot und Benutzer */
+    /* Diese Klassen müssen Sie möglicherweise selbst inspizieren:
+       z.B. '.chat-message.user', '.chat-message.bot' oder '.message-user', '.message-bot' */
+    .chat-container .message { /* Angepasst an Chatroom.js allgemeine Nachrichten-Klasse */
+        margin-bottom: 10px;
+        max-width: 80%; /* Nachrichten sind nicht zu breit */
+        padding: 10px 15px;
+        border-radius: 18px; /* Abgerundet */
+        line-height: 1.4;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        color: var(--message-text-color);
+        word-wrap: break-word; /* Lange Wörter umbrechen */
+    }
+
+    .chat-container .message.user { /* Für Nachrichten des Benutzers */
+        background-color: var(--message-bg-user); /* Hellblau */
+        align-self: flex-end; /* Rechtsbündig */
+        border-bottom-right-radius: 5px; /* Ecke unten rechts weniger abgerundet für "Sprechblasen-Effekt" */
+    }
+
+    .chat-container .message.bot { /* Für Nachrichten des Bots */
+        background-color: var(--message-bg-bot); /* Weiß */
+        align-self: flex-start; /* Linksbündig */
+        border-bottom-left-radius: 5px; /* Ecke unten links weniger abgerundet */
+    }
+
+    /* Eingabebereich */
+    .chat-container .chat-input { /* Angepasst an Chatroom.js Standard-Input-Bereich */
+      background-color: var(--chat-input-bg);
       padding: 15px;
       border-bottom-left-radius: 20px;
       border-bottom-right-radius: 20px;
@@ -70,29 +121,31 @@
       align-items: center;
     }
 
-    .chatroom-input-area input[type="text"] {
+    /* Eingabefeld */
+    .chat-container .chat-input input[type="text"] { /* Angepasst an Chatroom.js Standard-Input-Feld */
       flex-grow: 1;
       padding: 10px 15px;
-      border: 1px solid #BBDEFB; /* Dezenter blauer Rand */
-      border-radius: 25px; /* Stark abgerundet für modernen Look */
+      border: 1px solid var(--chat-border-blue);
+      border-radius: 25px;
       margin-right: 10px;
       font-size: 1em;
       outline: none;
       transition: border-color 0.3s ease;
     }
 
-    .chatroom-input-area input[type="text"]:focus {
-      border-color: #64B5F6; /* Hellerer Rand beim Fokus */
+    .chat-container .chat-input input[type="text"]:focus {
+      border-color: var(--chat-button-blue);
     }
 
-    .chatroom-input-area button {
-      background-color: #42A5F5; /* Lebhaftes Blau für den Senden-Button */
+    /* Senden-Button */
+    .chat-container .chat-input button { /* Angepasst an Chatroom.js Standard-Button */
+      background-color: var(--chat-button-blue);
       color: white;
       border: none;
-      border-radius: 50%; /* Runder Button */
+      border-radius: 50%;
       width: 45px;
       height: 45px;
-      font-size: 1.2em;
+      font-size: 1.2em; /* Für ein schönes Pfeil-Symbol oder Text */
       cursor: pointer;
       display: flex;
       justify-content: center;
@@ -101,17 +154,17 @@
       transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
-    .chatroom-input-area button:hover {
-      background-color: #2196F3; /* Dunkleres Blau beim Hover */
-      transform: translateY(-2px); /* Leichter Schwebeeffekt */
+    .chat-container .chat-input button:hover {
+      background-color: var(--chat-button-hover);
+      transform: translateY(-2px);
     }
 
-    /* Wolken und Sonne */
+    /* === WOLKEN UND SONNE IM BODY-HINTERGRUND === */
     .cloud-top-left, .cloud-bottom-right, .sun {
-      position: absolute;
-      opacity: 0.8; /* Leicht transparent */
-      pointer-events: none; /* Macht sie nicht klickbar und lässt Interaktionen durch */
-      z-index: -1; /* Hinter dem Chat-Container */
+      position: fixed; /* Fixiert im Viewport */
+      opacity: 0.8;
+      pointer-events: none; /* Interagiert nicht mit Maus/Touch */
+      z-index: 1; /* Über dem Body-Hintergrund, aber unter dem Chat-Container */
     }
 
     .cloud-top-left {
@@ -133,12 +186,12 @@
     }
 
     .sun {
-      top: -50px; /* Etwas außerhalb des Bildschirms für einen coolen Effekt */
+      top: -50px;
       right: -50px;
       width: 150px;
       height: 150px;
       background: url('https://i.imgur.com/k6lP0yS.png') no-repeat center center / contain; /* Beispiel Sonnenbild */
-      filter: drop-shadow(0 0 20px rgba(255, 255, 0, 0.7)); /* Leichter Leuchteffekt */
+      filter: drop-shadow(0 0 20px rgba(255, 255, 0, 0.7));
       animation: pulseSun 8s infinite ease-in-out;
     }
 
@@ -162,7 +215,7 @@
         height: 90vh;
       }
       .cloud-top-left, .cloud-bottom-right, .sun {
-        opacity: 0.6; /* Weniger prominent auf kleinen Bildschirmen */
+        opacity: 0.6;
       }
       .cloud-top-left {
         width: 150px;
@@ -183,26 +236,23 @@
         right: -30px;
       }
     }
-
   </style>
 </head>
 
 <body>
-  <div class="chat-container">
-    <div class="cloud-top-left"></div>
-    <div class="cloud-bottom-right"></div>
-    <div class="sun"></div>
-  </div>
+  <div class="cloud-top-left"></div>
+  <div class="cloud-bottom-right"></div>
+  <div class="sun"></div>
 
-  <script src="https://cdn.statically.io/gh/weberi/chatroom/master/dist/Chatroom.js"></script>
+  <div class="chat-container"></div> <script src="https://cdn.statically.io/gh/weberi/chatroom/master/dist/Chatroom.js"></script>
   <script type="text/javascript">
     var chatroom = new window.Chatroom({
       host: "https://verbose-meme-7vwwwpw47rvjfpq79-5005.app.github.dev", // Ihre Github Codespace URL
       title: "Weatherbot",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hallo! Ich bin dein Wetterexperte. Frage mich nach dem Wetter oder Informationen zu einer Stadt!",
-      speechRecognition: "de-DE", // Auf Deutsch geändert
-      voiceLang: "de-DE"          // Auf Deutsch geändert
+      speechRecognition: "de-DE",
+      voiceLang: "de-DE"
     });
     chatroom.openChat();
   </script>
